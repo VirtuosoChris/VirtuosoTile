@@ -32,6 +32,9 @@ class TileRenderer
     
     double clock;
     
+    Eigen::Matrix3f textureMatrix;
+    Eigen::Matrix4f modelviewProjectionMatrix;
+    
 public:
     
     void update(double timeDelta);
