@@ -5,15 +5,14 @@
 
 #include "SharedCounter.h"
 
+#include "GLInclude.h"
 
-#ifndef GL_ES_BUILD
-#include <GL/glew.h>
-#include <GL/GL.h>
-#else
-#include <OpenGLES/ES2/gl.h>
-#endif
 
-#include <image.h>
+//#include <image.h>
+#include <stdexcept>///\todo remove
+
+namespace GL
+{
 
 struct ImageFormat
 {
@@ -32,10 +31,8 @@ struct ImageFormat
 
 
 
-
 class GLTexture: public ImageFormat
 {
-
 
 public:
 
@@ -44,21 +41,26 @@ public:
 
 public:
 
-
     operator bool()const;
 
     void releaseTexture();
 
     GLTexture();
 
-    GLTexture(const ImageFormat& format);
+    GLTexture(const ImageFormat& format, unsigned char* data = NULL);
 
-    GLTexture(const LDRImage& img);
+    //GLTexture(const LDRImage& img);
 
+    void bind()const
+    {
+        throw std::runtime_error("not implemented");
+    }
+    
     ~GLTexture();
 
 };
 
+}
 
 #endif
 

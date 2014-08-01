@@ -10,7 +10,7 @@ std::pair<unsigned int, unsigned int> TileSet::getTileDimensions()const{
 
 unsigned int TileSet::numMaterials()const
 {
-    return tilesForMaterial.size();
+    return (unsigned int)tilesForMaterial.size();
     
 }
 
@@ -35,6 +35,7 @@ std::string TileSet::materialNameForIndex(unsigned int idx)const
     
     }
     
+    throw std::runtime_error("TileSet::materialNameForIndex reached end of loop with no hit.  If this happens the engine has a bug");
     
 }
 
@@ -45,14 +46,23 @@ unsigned int TileSet::atlasCount()const{
         return 0;
     }
     
-    return tilesForMaterial.begin()->second.size();
+    return (unsigned int)tilesForMaterial.begin()->second.size();
     
 }
 
 
-const GLTexture& TileSet::getAtlas(std::string& material, unsigned int index)const{
+const GL::GLTexture& TileSet::getAtlas(const std::string& material, unsigned int index)const{
     
-    TileAtlasArray& arr = tilesForMaterial[material];
+    auto it = tilesForMaterial.find(material);
+    
+    if(it == tilesForMaterial.end())
+    {
+        
+        throw std::runtime_error( std::string("TileSet::getAtlas material not found : ") + material );
+        
+    }
+    
+    const TileAtlasArray& arr = it->second;
     
     if(index >= arr.size())
     {
@@ -64,7 +74,7 @@ const GLTexture& TileSet::getAtlas(std::string& material, unsigned int index)con
 }
 
 
-void TileSet::pushAtlasForMaterial(std::string mat, const GLTexture& tex)
+void TileSet::pushAtlasForMaterial(const std::string& mat, const GL::GLTexture& tex)
 {
 
     tilesForMaterial[mat].push_back(tex);
@@ -90,7 +100,7 @@ bool TileSet::validate()const
     
     auto it = tilesForMaterial.begin();
     
-    unsigned int images = it->second.size();
+    unsigned int images = (unsigned int)it->second.size();
     
     unsigned int imageWidth=0;
     unsigned int imageHeight=0;

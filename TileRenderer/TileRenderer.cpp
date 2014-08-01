@@ -17,7 +17,7 @@ void TileRenderer::update(double timeDelta)
 }
 
 
-void draw(const TileMap& map, const TileSet& tiles)const
+void TileRenderer::draw(const TileMap& map, const TileSet& tiles)const
 {
     
     

@@ -4,26 +4,29 @@
 #include "SharedCounter.h"
 #include <stdexcept>
 #include <iostream>
+#include <vector>
+
+#include "GLTexture.h"
 
 class TileMap{
     
-        std::vector<GLTexture> indirectionTextures;
+    std::vector<GL::GLTexture> indirectionTextures;
     
     public:
 
-        const GLTexture& getIndirectionTexture(unsigned int index)const;
+        const GL::GLTexture& getIndirectionTexture(unsigned int index)const;
     
         bool validateDimensions()const;
     
         TileMap();
     
-        void insertImage(const LDRImage& img);
+        //void insertImage(const LDRImage& img);
 
-        void insertImage(const GLTexture& img);
+        void insertImage(const GL::GLTexture& img);
     
-        TileMap(const LDRImage& img);
+        //TileMap(const LDRImage& img);
     
-        TileMap(const GLTexture& tex);
+        TileMap(const GL::GLTexture& tex);
     
         unsigned int bytesPerTile()const;
     

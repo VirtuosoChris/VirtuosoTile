@@ -3,13 +3,21 @@
 #include "GLShader.h"
 #include <fstream>
 #include <iostream>
+
+
+#ifdef EIGEN
 #include <Eigen/Core>
+#endif
 
+#include <sstream>
 
-GL::GLShaderProgram::GLShaderProgram(const char* vertFile, const char* fragFile)
+using namespace GL;
+
+GL::GLShaderProgram::GLShaderProgram(const char* vertSrc, const char* fragSrc)
 {
-    initializeShader(vertFile, fragFile, geomFile);
+    initializeShader(vertSrc, fragSrc);
 }
+
 
 GL::GLShaderProgram::GLShaderProgram(const std::string& vertFile, const std::string& fragFile)
 {
@@ -17,13 +25,13 @@ GL::GLShaderProgram::GLShaderProgram(const std::string& vertFile, const std::str
 }
 
 
-GL::GLShaderProgram::GLShaderProgram(const std::istream& vertStream, const std::istream& fragStream)
+GL::GLShaderProgram::GLShaderProgram( std::istream& vertStream, std::istream& fragStream)
 {
     initializeShader(vertStream, fragStream);
 }
 
 
-void GL::GLShaderProgram initializeShader(const char* vertCStr, const char* fragCStr)
+void GL::GLShaderProgram::initializeShader(const char* vertCStr, const char* fragCStr)
 {
     
     unsigned int vertexShaderObject = glCreateShader(GL_VERTEX_SHADER);
@@ -81,9 +89,11 @@ void GL::GLShaderProgram initializeShader(const char* vertCStr, const char* frag
 
 
 
-void GL::GLShaderProgram::initializeShader(std::ifstream& vertShaderFile, std::ifstream&  fragShaderFile)
+void GL::GLShaderProgram::initializeShader(std::istream& vertShaderFile, std::istream&  fragShaderFile)
 {
     
+    ///\todo loadShaderFromFile(string, string)
+    /*
     if(!vertShaderFile.is_open())
     {
         throw std::runtime_error("Vertex Shader File Not Open");
@@ -93,6 +103,7 @@ void GL::GLShaderProgram::initializeShader(std::ifstream& vertShaderFile, std::i
     {
         throw std::runtime_error("Fragment Shader File Not Open");
     }
+     */
     
     std::ostringstream s;
     s << vertShaderFile.rdbuf();
@@ -113,9 +124,9 @@ void GL::GLShaderProgram::initializeShader(std::ifstream& vertShaderFile, std::i
 
 
 
-void GL::GLShaderProgram::initializeShader(const std::string& vertFile, const std::string& fragFile)
+void GL::GLShaderProgram::initializeShader(const std::string& vertSrc, const std::string& fragSrc)
 {
-    initializeShader(vertFile.c_str(), fragFile.c_str());
+    initializeShader(vertSrc.c_str(), fragSrc.c_str());
 }
 
 
@@ -163,7 +174,7 @@ void GL::GLShaderProgram::setTexture(const char* name,  int unit)
 
 }
 
-void GL::GLShader::bind()
+void GL::GLShaderProgram::bind()
 {
 
     glUseProgram(prog);
@@ -264,6 +275,8 @@ void GL::GLShaderProgram::setUniform(const char* name, const float& val0, const 
 }
 
 
+#ifdef EIGEN
+
 void GL::GLShaderProgram::setUniform(const char* name, const Eigen::Vector3f& val)
 {
 
@@ -302,5 +315,7 @@ void GL::GLShaderProgram::setUniform(const char* name, const Eigen::Matrix4f& va
     glUniformMatrix4fv( loc, 1, GL_FALSE, val.data());
 
 }
+
+#endif
 
 

@@ -6,9 +6,15 @@
 //
 //
 
+#include <vector>
+#include <string>
+#include <map>
+
+#include "GLTexture.h"
+
 class TileSet{
     
-    typedef std::vector<GLTexture> TileAtlasArray;
+    typedef std::vector<GL::GLTexture> TileAtlasArray;
     
     std::map<std::string, TileAtlasArray> tilesForMaterial;
     
@@ -17,7 +23,7 @@ class TileSet{
     
 public:
 	   
-    const GLTexture& getAtlas(std::string& material, unsigned int index)const;
+    const GL::GLTexture& getAtlas(const std::string& material, unsigned int index)const;
     
     unsigned int atlasCount()const;
     
@@ -25,7 +31,7 @@ public:
     
     void setTileSize(unsigned int tileW, unsigned int tileH);
     
-    void pushAtlasForMaterial(std::string mat, const GLTexture& tex);
+    void pushAtlasForMaterial(const std::string& mat, const GL::GLTexture& tex);
     
     std::pair<unsigned int, unsigned int> getTileDimensions()const;
     

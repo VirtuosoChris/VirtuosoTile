@@ -3,14 +3,15 @@
 #ifndef _GL_SHADER_H_INCLUDED
 #define _GL_SHADER_H_INCLUDED
 
-#include <Eigen/Core>
-#include <SharedCounter.h>
 
-#ifndef GL_ES_BUILD
-#include <GL/glew.h>
-#else
-#include <OpenGLES/ES2/gl.h>
+#ifdef EIGEN
+#include <Eigen/Core>
 #endif
+
+#include "SharedCounter.h"
+
+
+#include "GLInclude.h"
 
 
 namespace GL
@@ -28,26 +29,28 @@ public:
     void showLinkLog();
     static void showCompilationLog(unsigned int shaderObjectID);
 
-    /* constructors that take in file names for vertex shaders and fragment shaders*/
+    /* constructors and initializers that take in source for vertex shaders and fragment shaders, and create a GL shader program*/
 
-    GLShaderProgram(const char* vertFile, const char* fragFile);
+    GLShaderProgram(const char* vertSrc, const char* fragSrc);
     
-    GLShaderProgram(const std::string& vertFile, const std::string& fragFile);
+    GLShaderProgram(const std::string& vertSrc, const std::string& fragSrc);
     
     GLShaderProgram(std::istream& vertStream, std::istream& fragStream);
  
-    void initializeShader(const std::string& vertFile, const std::string& fragFile);
+    void initializeShader(const std::string& vertSrc, const std::string& fragSrc);
 
-    void initializeShader(const char* vertFile, const char* fragFile);
+    void initializeShader(const char* vertSrc, const char* fragSrc);
 
+    void initializeShader(std::istream& vertStream, std::istream& fragStream);
+    
     ///dummy constructor
-    GLShader():prog(0) {}
+    GLShaderProgram():prog(0) {}
 
     ///frees up the program object and makes this a "dummy" object
     void releaseProgram();
 
     ///dtor for a shader program.  releases the program object if the copy count is unique
-    virtual ~GLShader();
+    virtual ~GLShaderProgram();
 
     /*functions to set uniform variables*/
 
@@ -62,6 +65,8 @@ public:
 
     void setUniform(const char* name, const float& val0, const float& val1, const float& val2, const float& val3);
 
+#ifdef EIGEN
+    
     ///uniform float3 taking in an eigen vector
     void setUniform(const char* name, const Eigen::Vector3f& val);
 
@@ -73,6 +78,9 @@ public:
 
     ///uniform 4x4 matrix taking in an eigen matrix
     void setUniform(const char* name, const Eigen::Matrix4f& val);
+
+#endif
+    
 
     ///uniform int
     void setUniform(const char* name, int val);

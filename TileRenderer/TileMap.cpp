@@ -8,6 +8,8 @@
 
 #include "TileMap.h"
 
+using namespace GL;
+
 const GLTexture& TileMap::getIndirectionTexture(unsigned int index)const
 {
     
@@ -24,7 +26,7 @@ const GLTexture& TileMap::getIndirectionTexture(unsigned int index)const
 void TileMap::updateTile(unsigned int x, unsigned int y, GLubyte* data)const
 {
     
-    if(!validateDimensions)
+    if(!validateDimensions())
     {
         throw std::runtime_error("TileMap validation failed in updateTile");
     }
@@ -92,7 +94,7 @@ std::pair<unsigned int, unsigned int> TileMap::dimensions() const
     if(indirectionTextures.size())
     {
 
-        GLTexture& tex = indirectionTextures[0];
+        const GLTexture& tex = indirectionTextures[0];
         
         return std::pair<unsigned int, unsigned int>(tex.width, tex.height);
 
@@ -108,6 +110,7 @@ TileMap::TileMap()
     
 }
 
+/*
 void TileMap::insertImage(const LDRImage& img)
 {
     indirectionTextures.push_back(GLTexture(img));
@@ -121,9 +124,11 @@ TileMap::TileMap(const LDRImage& img){
     
 }
 
+*/
+
 void TileMap::insertImage(const GLTexture& img)
 {
-    indirectionTextures.push_back(tex);
+    indirectionTextures.push_back(img);
 
 }
 
@@ -138,16 +143,17 @@ TileMap::TileMap(const GLTexture& tex){
 unsigned int TileMap::bytesPerTile()const
 {
     unsigned int rval;
-    for(unsigned int i =0 ; i < indirectionTextureHandles.size(); i++)
+    for(unsigned int i =0 ; i < indirectionTextures.size(); i++)
     {
         rval += indirectionTextures[i].channels;
         
     }
+    return rval;
     
 }
 
 unsigned int TileMap::numLayers()const{
-    return indirectionTextures.size();
+    return (unsigned int)indirectionTextures.size();
 }
 
 

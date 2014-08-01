@@ -11,9 +11,6 @@
 
 #include <iostream>
 
-
-
-
 //draw full screen quad
 
 //transformation matrix for the quad
@@ -24,16 +21,22 @@
 //automatically make material lookup for each texture as rgba
 
 
+#include "GLShader.h"
+
+class TileMap;
+class TileSet;
+
 class TileRenderer
 {
     
 
-    GLShader program;
+    GL::GLShaderProgram program;
     
     double clock;
     
-    Eigen::Matrix3f textureMatrix;
-    Eigen::Matrix4f modelviewProjectionMatrix;
+    ///\todo Eigen this
+    //Eigen::Matrix3f textureMatrix;
+    //Eigen::Matrix4f modelviewProjectionMatrix;
     
 public:
     
