@@ -147,6 +147,7 @@ void GL::GLShaderProgram::showLinkLog()
 }
 
 
+///\todo option for error log other than cout
 void GL::GLShaderProgram::showCompilationLog(unsigned int shaderObjectID)
 {
     int infoLogSize = 0;

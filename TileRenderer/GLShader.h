@@ -13,6 +13,7 @@
 
 #include "GLInclude.h"
 
+///\todo uniform location cache, invalidate functions for it, link method, etc
 
 namespace GL
 {
@@ -29,7 +30,7 @@ public:
     void showLinkLog();
     static void showCompilationLog(unsigned int shaderObjectID);
 
-    /* constructors and initializers that take in source for vertex shaders and fragment shaders, and create a GL shader program*/
+    /* constructors and initializers that take in source for vertex shaders and fragment shaders, and create a GL shader program */
 
     GLShaderProgram(const char* vertSrc, const char* fragSrc);
     
@@ -64,8 +65,11 @@ public:
     void setUniform(const char* name, const float& val0, const float& val1, const float& val2);
 
     void setUniform(const char* name, const float& val0, const float& val1, const float& val2, const float& val3);
-
+ 
+    ///\todo float array uniform methods
+    
 #ifdef EIGEN
+    ///\todo, would it be worth supporting GLM as an additional ifdef if EIGEN is supported?
     
     ///uniform float3 taking in an eigen vector
     void setUniform(const char* name, const Eigen::Vector3f& val);
