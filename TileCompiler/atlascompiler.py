@@ -1,16 +1,12 @@
 import json
 from PIL import Image
+import os
+import re
+import random
 
-def merge_tilesources(tsdict):
-	def prepend_dict(prefix,dct)
-		return dict([(prefix+'/'+k,v) for k,v in dct.items()])
-	z={}
-	for k,v in tsdict.items():
-		z.update(prepend_dict(k,v))
-	return z
 	
 def chop_image(im,tiledim):
-	frames=(im.size[0] / tiledim,im.size[1] / tiledim)
+	frames=(int(im.size[0] / tiledim),int(im.size[1] / tiledim))
 	#warn if cannot be chopped (if there is a remainder
 	if(im.size[0] % tiledim or im.size[1] % tiledim):
 		print("Warning, image cannot be chopped")
@@ -29,9 +25,9 @@ def get_tilesources(fn,tiledim):
 		subsources={}
 		for root, dirs, files in os.walk(fn):
 			for f in files:
-				tiles=get_tilesources(os.path.join(root,f),tiledim)
-				subsources[root]=tiles
-		return merge_tilesources(subsources)
+				tiles=get_tilesources(root+'/'+f,tiledim)
+				subsources.update(tiles)
+		return subsources
 	elif(os.path.splitext(fn)[1]=='ts'):
 		#parse tsfile and return dictionary
 		tsjson=json.load(open(fn,'r'))
@@ -51,48 +47,155 @@ def get_tilesources(fn,tiledim):
 		try:
 			im=Image.open(fn)
 			k=os.path.splitext(fn)[0]
-			v=chop_image(fn,tiledim)
+			v=chop_image(im,tiledim)
 			return {k:v}
 		except:
 			return {}
+
+def count_paren_parity(strin):
+	n=0
+	for s in strin:
+		if(s==')'):
+			n-=1
+		if(s=='('):
+			n+=1
+	return n
+
+tileset_regex=re.compile('<(\S+?)>')
+def alias_string(aliases,stringin):
+	curparity=0
+	sout='['
+	for s in stringin.split():
+		if(s in aliases):
+			sout+=aliases[s]+','
+		else:
+			curparity=count_paren_parity(s)
+			sout+=s
+			if(curparity==0):
+				sout+=','
+	sout=tileset_regex.sub(r"tileset_lookup('\1',tiles)",sout)
+	return sout[:-1]+']'
+
+
+def animate_potential(tileset,fps):
+	return tileset
+def sub_potential(tileset,begin,end):
+	return tileset[begin:end]
+def random_potential(tileset):
+	return tileset
+def tileset_lookup_potential(strarg,tilesources):
+	return tilesources[strarg]
+
+
+def animate_code(rangecode,fps,startpoint=0):
+	n=rangecode[1]-rangecode[0]
+	animate_prefix=1<<31+fps<<20+n<<16 #whatever the appropriate schema is
+	return animate_prefix+rangecode[0]+startpoint
 	
-def read(s):
-    "Read a Scheme expression from a string."
-    return read_from(tokenize(s))
+def sub_code(rangecode,begin,end):
+	return [rangecode[0]+begin,rangecode[1]+end]
+def random_code(rangecode):
+	return random.randint(rangecode[0],rangecode[1]-1)
+def tileset_lookup_code(strarg,rangecodes):
+	return rangecodes[strarg]
+	
+	
+def safe_eval(s,environment):
+	if('__' in s):
+		raise RuntimeError('Unsafe String Passed')
+	return eval(s,{"__builtins__":None},environment)
 
-parse = read
-
-def tokenize(s):
-    "Convert a string into a list of tokens."
-    return s.replace('(',' ( ').replace(')',' ) ').split()
-
-def read_from(tokens):
-    "Read an expression from a sequence of tokens."
-    if len(tokens) == 0:
-        raise SyntaxError('unexpected EOF while reading')
-    token = tokens.pop(0)
-    if '(' == token:
-        L = []
-        while tokens[0] != ')':
-            L.append(read_from(tokens))
-        tokens.pop(0) # pop off ')'
-        return L
-    elif ')' == token:
-        raise SyntaxError('unexpected )')
-    else:
-        return atom(token)
-
-def atom(token):
-    "Numbers become numbers; every other token is a symbol."
-    try: return int(token)
-    except ValueError:
-        try: return float(token)
-        except ValueError:
-            return Symbol(token)
-
-		
+#rewrite this, the design sucks.  Use dataflow model not class update
 class LevelFile(object):
 	def __init__(self,fn):
-		self.dictionary=json.loads(open(fn,'r'))
+		self.dictionary=json.load(open(fn,'r'))
 		sources=self.dictionary['sources']
-		self.tilesources=get_tilesources(sources[0]) #TODO: BUG..sources should be parsed 
+		self.tilesize=self.dictionary['tilesize']
+		self.tilesources=get_tilesources(sources[0],self.tilesize) #TODO: BUG..sources should be parsed
+		self.tilerefs={}
+		self.name=os.path.splitext(fn)[0]
+		
+		for tilekey,tiles in self.tilesources.items():
+			tv=[(tilekey,x) for x in range(len(tiles))]
+			self.tilerefs[tilekey]=tv
+		self.aliases=self.dictionary['aliases']
+		self.outputs=self.dictionary['outputs']
+		
+		for o in self.outputs:
+			if('invisible' in o):
+				o['invisible_aliased']=alias_string(self.aliases,o['invisible'])
+			if('visible' in o):
+				va=[]
+				for v in o['visible']:
+					va.append(alias_string(self.aliases,v))
+				o['visible_aliased']=va
+		
+	def get_all_potentials(self):
+		potentials=set()
+		potential_library={'animate':animate_potential,'sub':sub_potential,'random':random_potential,'tileset_lookup':tileset_lookup_potential,'tiles':self.tilerefs}
+		for o in self.outputs:
+			a=safe_eval(o['invisible_aliased'],potential_library)
+			potentials|=set([item for sublist in a for item in sublist])
+			
+			visible=o['visible_aliased']
+			for v in visible:
+				a=safe_eval(v,potential_library)
+				potentials|=set([item for sublist in a for item in sublist])
+		return sorted(potentials)
+
+	def compute_level_codes(self,potentials):
+		def codeprocess(e):
+			try:
+				return int(e)
+			except:
+				return int(e[0])
+				
+		rangecodes={}
+		for i,x in enumerate(potentials):
+			rangecodes.setdefault(x[0],[i,i+1])
+			rangecodes[x[0]][1]=i+1
+		code_library={'animate':animate_code,'sub':sub_code,'random':random_code,'tileset_lookup':tileset_lookup_code,'tiles':rangecodes}
+		for o in self.outputs:
+			a=safe_eval(o['invisible_aliased'],code_library)
+			o['invisible_codes']=[codeprocess(x) for x in a]
+			
+			
+			visible=o['visible_aliased']
+			vc=[]
+			for v in visible:
+				a=safe_eval(v,code_library)
+				vc.append([codeprocess(x) for x in a])
+			o['visible_codes']=vc
+			
+	def atlas_size(n):
+		for i in range(32):
+			if((1 << (2*i)) > n):
+				return (1 << i)
+				
+	def build_atlas(self,potentials):
+		n=len(potentials)
+		d=atlas_size(n)
+		atlasim=Image.new("RGBA",(d*self.tilesize,d*self.tilesize))
+		for i,p in enumerate(potentials):
+			tile=self.tilesources[p[0]][p[1]]
+			xcoord=(i % d)*self.tilesize
+			ycoord=(i / d)*self.tilesize
+			atlasim.paste(tile,box=(xcoord,ycoord))
+			
+		return atlasim
+		
+	def write_map(self,filename,mapints):
+		pass
+	def write_map_files(self):
+		#for each output, convert the image to a big-endian RGBA triple. then output item
+		#including invisible outputs to image pixels
+		
+		#for o in self.outputs:
+		pass
+		
+		
+lf=LevelFile('atlasexample.json')
+
+p=lf.get_all_potentials()
+lf.compute_level_codes(p)
+print()
