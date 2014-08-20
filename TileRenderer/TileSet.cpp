@@ -1,6 +1,7 @@
 #include "TileSet.h"
 
-std::pair<unsigned int, unsigned int> TileSet::getTileDimensions()const{
+std::pair<unsigned int, unsigned int> TileSet::getTileDimensions()const
+{
     
     return std::pair<unsigned int, unsigned int>(tileWidth, tileHeight);
     
@@ -40,7 +41,8 @@ std::string TileSet::materialNameForIndex(unsigned int idx)const
 }
 
 
-unsigned int TileSet::atlasCount()const{
+unsigned int TileSet::atlasCount()const
+{
     
     if(!tilesForMaterial.size()){
         return 0;
@@ -51,7 +53,8 @@ unsigned int TileSet::atlasCount()const{
 }
 
 
-const GL::GLTexture& TileSet::getAtlas(const std::string& material, unsigned int index)const{
+const GL::GLTexture& TileSet::getAtlas(const std::string& material, unsigned int index)const
+{
     
     auto it = tilesForMaterial.find(material);
     
