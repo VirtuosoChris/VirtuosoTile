@@ -49,8 +49,7 @@ public:
 
     GLTexture(const ImageFormat& format, unsigned char* data = NULL);
 
-    //GLTexture(const LDRImage& img);
-
+   
     void bind()const
     {
         throw std::runtime_error("not implemented");

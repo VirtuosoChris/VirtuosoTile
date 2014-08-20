@@ -144,7 +144,7 @@ std::string makeFragmentShader<DefaultTileLayout>(const TileMap& map, const Tile
    
     sstr<<"vec2 coordOffset = fract(tileCoord);\n";
     
-    sstr<<"vec4 lookup_mapData0 = texture2D(mapData0, coordOffset);\n";
+    sstr<<"vec4 lookup_mapData0 = texture2D(mapData0, tc);\n";
    
     sstr<<"float offsetX = 255.0 * lookup_mapData0.r;\n";
     sstr<<"float offsetY = 255.0 * lookup_mapData0.g;\n";
@@ -155,9 +155,15 @@ std::string makeFragmentShader<DefaultTileLayout>(const TileMap& map, const Tile
     
     //generate code to make tile lookup coords
     
-    sstr<<"vec2 atlasCoords = vec2(offsetX, offsetY) * tileSizeNorm;\n";
+    sstr<<"vec2 atlasCoords = (coordOffset + vec2(offsetX, offsetY) ) * tileSizeNorm ;\n";
     
     sstr<<makeShaderMaterialLookupsSingleAtlas(  tiles);
+    
+    
+    ///\todo usage should be a function call
+    
+    sstr<<"\ngl_FragColor= default_lookup;\n"<<std::endl;
+    
     
     sstr<<"}";
     
