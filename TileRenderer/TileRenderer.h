@@ -26,17 +26,19 @@
 class TileMap;
 class TileSet;
 
+#include <Eigen/Core>
+
 class TileRenderer
 {
     
-
     GL::GLShaderProgram program;
     
     double clock;
-    
-    ///\todo Eigen this
-    //Eigen::Matrix3f textureMatrix;
-    //Eigen::Matrix4f modelviewProjectionMatrix;
+
+    ///\todo make engine internal typedefs that can be mapped to different libs
+    ///or just store the matrices directly
+    Eigen::Matrix3f textureMatrix;
+    Eigen::Matrix4f modelviewProjectionMatrix;
     
 public:
     
@@ -44,6 +46,7 @@ public:
     
     void draw(const TileMap&, const TileSet&)const;
     
+    TileRenderer();
     
 
 

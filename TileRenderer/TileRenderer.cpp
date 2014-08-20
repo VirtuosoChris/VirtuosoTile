@@ -19,7 +19,20 @@ void TileRenderer::update(double timeDelta)
 
 void TileRenderer::draw(const TileMap& map, const TileSet& tiles)const
 {
+    program.bind();
     
+    program.setUniform("textureMatrix", textureMatrix);
+    
+    
+    
+}
+
+
+TileRenderer::TileRenderer()
+: clock(0.0),
+textureMatrix(Eigen::Matrix3f::Identity()),
+modelviewProjectionMatrix(Eigen::Matrix4f::Identity())
+{
     
     
 }

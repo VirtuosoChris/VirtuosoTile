@@ -167,7 +167,7 @@ void GL::GLShaderProgram::showCompilationLog(unsigned int shaderObjectID)
 
 
 
-void GL::GLShaderProgram::setTexture(const char* name,  int unit)
+void GL::GLShaderProgram::setTexture(const char* name,  int unit)const
 {
 
     setUniform	(name, unit);
@@ -175,7 +175,7 @@ void GL::GLShaderProgram::setTexture(const char* name,  int unit)
 
 }
 
-void GL::GLShaderProgram::bind()
+void GL::GLShaderProgram::bind()const
 {
 
     glUseProgram(prog);
@@ -211,7 +211,7 @@ void GL::GLShaderProgram::releaseProgram()
 }
 
 
-void GL::GLShaderProgram::setUniform(const char* name, const float& val)
+void GL::GLShaderProgram::setUniform(const char* name, const float& val)const
 {
     
 
@@ -222,7 +222,7 @@ void GL::GLShaderProgram::setUniform(const char* name, const float& val)
 
 }
 
-void GL::GLShaderProgram::setUniform(const char* name, int val)
+void GL::GLShaderProgram::setUniform(const char* name, int val)const
 {
 
     GLint loc = glGetUniformLocation(prog, name);
@@ -233,7 +233,7 @@ void GL::GLShaderProgram::setUniform(const char* name, int val)
 
 
 
-void GL::GLShaderProgram::setUniform(const char* name, const float& val0, const float& val1)
+void GL::GLShaderProgram::setUniform(const char* name, const float& val0, const float& val1)const
 {
 
     GLint loc = glGetUniformLocation(prog, name);
@@ -244,7 +244,7 @@ void GL::GLShaderProgram::setUniform(const char* name, const float& val0, const 
 }
 
 
-void GL::GLShaderProgram::setUniform(const char* name, const int& val0, const int& val1)
+void GL::GLShaderProgram::setUniform(const char* name, const int& val0, const int& val1)const
 {
 
     std::cout<<"2i uniform"<<std::endl;
@@ -256,7 +256,7 @@ void GL::GLShaderProgram::setUniform(const char* name, const int& val0, const in
 
 
 
-void GL::GLShaderProgram::setUniform(const char* name, const float& val0, const float& val1, const float& val2)
+void GL::GLShaderProgram::setUniform(const char* name, const float& val0, const float& val1, const float& val2)const
 {
 
     GLint loc = glGetUniformLocation(prog, name);
@@ -266,7 +266,7 @@ void GL::GLShaderProgram::setUniform(const char* name, const float& val0, const 
 }
 
 
-void GL::GLShaderProgram::setUniform(const char* name, const float& val0, const float& val1, const float& val2, const float& val3)
+void GL::GLShaderProgram::setUniform(const char* name, const float& val0, const float& val1, const float& val2, const float& val3)const
 {
 
     GLint loc = glGetUniformLocation(prog, name);
@@ -278,7 +278,7 @@ void GL::GLShaderProgram::setUniform(const char* name, const float& val0, const 
 
 #ifdef EIGEN
 
-void GL::GLShaderProgram::setUniform(const char* name, const Eigen::Vector3f& val)
+void GL::GLShaderProgram::setUniform(const char* name, const Eigen::Vector3f& val)const
 {
 
     GLint loc = glGetUniformLocation(prog, name);
@@ -290,7 +290,7 @@ void GL::GLShaderProgram::setUniform(const char* name, const Eigen::Vector3f& va
 
 
 
-void GL::GLShaderProgram::setUniform(const char* name, const Eigen::Vector4f& val)
+void GL::GLShaderProgram::setUniform(const char* name, const Eigen::Vector4f& val)const
 {
 
     GLint loc = glGetUniformLocation(prog, name);
@@ -299,7 +299,7 @@ void GL::GLShaderProgram::setUniform(const char* name, const Eigen::Vector4f& va
 
 }
 
-void GL::GLShaderProgram::setUniform(const char* name, const Eigen::Matrix3f& val)
+void GL::GLShaderProgram::setUniform(const char* name, const Eigen::Matrix3f& val)const
 {
 
     GLint loc = glGetUniformLocation(prog, name);
@@ -308,7 +308,7 @@ void GL::GLShaderProgram::setUniform(const char* name, const Eigen::Matrix3f& va
 
 }
 
-void GL::GLShaderProgram::setUniform(const char* name, const Eigen::Matrix4f& val)
+void GL::GLShaderProgram::setUniform(const char* name, const Eigen::Matrix4f& val)const
 {
 
     GLint loc = glGetUniformLocation(prog, name);

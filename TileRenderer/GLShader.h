@@ -56,15 +56,15 @@ public:
     /*functions to set uniform variables*/
 
     ///uniform float
-    void setUniform(const char* name, const float& val);
+    void setUniform(const char* name, const float& val)const;
 
     ///uniform float2 taking in individual values
-    void setUniform(const char* name, const float& val0, const float& val1);
+    void setUniform(const char* name, const float& val0, const float& val1)const;
 
     ///uniform float3 taking individual values
-    void setUniform(const char* name, const float& val0, const float& val1, const float& val2);
+    void setUniform(const char* name, const float& val0, const float& val1, const float& val2)const;
 
-    void setUniform(const char* name, const float& val0, const float& val1, const float& val2, const float& val3);
+    void setUniform(const char* name, const float& val0, const float& val1, const float& val2, const float& val3)const;
  
     ///\todo float array uniform methods
     
@@ -72,30 +72,29 @@ public:
     ///\todo, would it be worth supporting GLM as an additional ifdef if EIGEN is supported?
     
     ///uniform float3 taking in an eigen vector
-    void setUniform(const char* name, const Eigen::Vector3f& val);
+    void setUniform(const char* name, const Eigen::Vector3f& val)const;
 
     ///uniform float4 taking in an eigen vector
-    void setUniform(const char* name, const Eigen::Vector4f& val);
+    void setUniform(const char* name, const Eigen::Vector4f& val)const;
 
     ///uniform 3x3 matrix taking in an eigen matrix
-    void setUniform(const char* name, const Eigen::Matrix3f& val);
+    void setUniform(const char* name, const Eigen::Matrix3f& val)const;
 
     ///uniform 4x4 matrix taking in an eigen matrix
-    void setUniform(const char* name, const Eigen::Matrix4f& val);
+    void setUniform(const char* name, const Eigen::Matrix4f& val)const;
 
 #endif
     
 
     ///uniform int
-    void setUniform(const char* name, int val);
+    void setUniform(const char* name, int val)const;
 
     ///uniform which binds sampler2D with identifier "name" to the specified texture unit
-    void setTexture(const char* name, int unit);
+    void setTexture(const char* name, int unit)const;
 
-    void setUniform(const char* name, const int& val0, const int& val1);
+    void setUniform(const char* name, const int& val0, const int& val1)const;
 
-
-    void bind();
+    void bind()const;
 
 };
 
