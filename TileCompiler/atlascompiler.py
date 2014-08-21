@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import random
+from copy import deepcopy
 
 	
 def chop_image(im,tiledim):
@@ -77,7 +78,6 @@ def alias_string(aliases,stringin):
 	sout=tileset_regex.sub(r"tileset_lookup('\1',tiles)",sout)
 	return sout[:-1]+']'
 
-
 def animate_potential(tileset,fps,startpoint=0):
 	return tileset
 def sub_potential(tileset,begin,end):
@@ -87,16 +87,40 @@ def random_potential(tileset):
 def tileset_lookup_potential(strarg,tilesources):
 	return tilesources[strarg]
 
-
-def animate_code(rangecode,fps,startpoint=0):
-	n=rangecode[1]-rangecode[0]
-	animate_prefix=(1<<31)+(fps<<20)+(n<<16) #whatever the appropriate schema is
-	return animate_prefix+rangecode[0]+startpoint
+class TilePixel(object):
+	def __init__(self,lower,upper):
+		self.lower=lower
+		self.upper=upper
+		self.fps=0
+		self.repeat=False
+	def encode_to_pixel(self,atlas_sz):
+		i=self.lower & 0xFFFF
+		num_frames=(self.upper-self.lower) & 0xFF
+		fps=self.fps & 0x7F
+		repeat=int(self.repeat)
+		r=int(i % atlas_sz)
+		g=int(i / atlas_sz)
+		b=num_frames
+		a=fps | (repeat << 7)
+		return [r,g,b,a]
 	
-def sub_code(rangecode,begin,end):
-	return [rangecode[0]+begin,rangecode[1]+end]
-def random_code(rangecode):
-	return random.randint(rangecode[0],rangecode[1]-1)
+#todo: use something a struct for the codes to carry semantic info till compile time instead of encoding it into the ints
+def animate_code(tp,fps,startpoint=0,repeat=False):
+	tp=deepcopy(tp)
+	tp.fps=fps
+	tp.lower+=startpoint
+	tp.repeat=repeat
+	return tp
+	
+def sub_code(tp,begin,end):
+	tp=deepcopy(tp)
+	tp.lower+=begin
+	tp.upper=tp.lower+end
+	return tp
+def random_code(tp):
+	tp=deepcopy(tp)
+	tp.lower=random.randint(tp.lower,tp.upper-1)
+	return tp
 def tileset_lookup_code(strarg,rangecodes):
 	return rangecodes[strarg]
 	
@@ -169,27 +193,25 @@ class LevelFile(object):
 		return sorted(potentials)
 
 	def compute_level_codes(self,potentials):
-		def codeprocess(e):
-			try:
-				return int(e)
-			except:
-				return int(e[0])
-				
+
+
 		rangecodes={}
 		for i,x in enumerate(potentials):
-			rangecodes.setdefault(x[0],[i,i+1])
-			rangecodes[x[0]][1]=i+1
+			rangecodes.setdefault(x[0],TilePixel(i,i+1))
+			rangecodes[x[0]].upper=i+1
+		
 		code_library={'animate':animate_code,'sub':sub_code,'random':random_code,'tileset_lookup':tileset_lookup_code,'tiles':rangecodes}
 		for o in self.outputs:
 			a=safe_eval(o['invisible_aliased'],code_library)
-			o['invisible_codes']=[codeprocess(x) for x in a]
+			
+			o['invisible_codes']=a
 			
 			
 			visible=o['visible_aliased']
 			vc=[]
 			for v in visible:
 				a=safe_eval(v,code_library)
-				vc.append([codeprocess(x) for x in a])
+				vc.append(a)
 			o['visible_codes']=vc
 			
 				
@@ -200,6 +222,7 @@ class LevelFile(object):
 					return (1 << i)
 		n=len(potentials)
 		d=atlas_size(n)
+		self.atlas_size=int(d)
 		atlasim=Image.new("RGBA",(d*self.tilesize,d*self.tilesize))
 	
 		for i,p in enumerate(potentials):
@@ -215,8 +238,8 @@ class LevelFile(object):
 	def build_map(self,mapints):
 		height=len(mapints)
 		width=len(mapints[0])
-		
-		bb=bytes([ pcolor for row in mapints for column in row for pcolor in [(column >> 24) & 0xFF,(column >> 16) & 0xFF,(column >> 8) & 0xFF,column & 0xFF]])
+				
+		bb=bytes([ pchannel for row in mapints for pixel in row for pchannel in pixel.encode_to_pixel(int(self.atlas_size)) ])
 
 		return Image.frombytes('RGBA',(width,height),bb)
 		
@@ -227,7 +250,7 @@ class LevelFile(object):
 		previmg=Image.new('RGBA',(width*self.tilesize,height*self.tilesize))
 		for y,row in enumerate(mapints):
 			for x,base in enumerate(row):
-				p=potentials[base & 0xFFFF]
+				p=potentials[base.lower & 0xFFFF]
 				tile=self.tilesources[p[0]][p[1]]
 				coords=(x*self.tilesize,y*self.tilesize)
 				previmg.paste(tile,box=coords)
