@@ -2,6 +2,7 @@ import json
 from PIL import Image,ImageColor
 import os
 import re
+import sys
 import random
 
 	
@@ -77,7 +78,7 @@ def alias_string(aliases,stringin):
 	return sout[:-1]+']'
 
 
-def animate_potential(tileset,fps):
+def animate_potential(tileset,fps,startpoint=0):
 	return tileset
 def sub_potential(tileset,begin,end):
 	return tileset[begin:end]
@@ -114,7 +115,6 @@ class LevelFile(object):
 		self.tilesources=get_tilesources(sources[0],self.tilesize) #TODO: BUG..sources should be parsed
 		self.tilerefs={}
 		self.name=os.path.splitext(fn)[0]
-		
 		
 		for tilekey,tiles in self.tilesources.items():
 			tv=[(tilekey,x) for x in range(len(tiles))]
@@ -227,7 +227,7 @@ class LevelFile(object):
 		previmg=Image.new('RGBA',(width*self.tilesize,height*self.tilesize))
 		for y,row in enumerate(mapints):
 			for x,base in enumerate(row):
-				p=potentials[base]
+				p=potentials[base & 0xFFFF]
 				tile=self.tilesources[p[0]][p[1]]
 				coords=(x*self.tilesize,y*self.tilesize)
 				previmg.paste(tile,box=coords)
@@ -242,9 +242,10 @@ class LevelFile(object):
 			oname=o['name']
 			self.build_map(o['visible_codes']).save(self.name+'.'+oname+'.visible.'+ext,imgtype)
 			self.build_map([o['invisible_codes']]).save(self.name+'.'+oname+'.invisible.'+ext,imgtype)
-			
+			if(previews):
+				self.build_preview(o['visible_codes'],potentials).save(self.name+'.'+oname+'.prev.'+ext,imgtype)
 	
 		
-		
-lf=LevelFile('atlasexample.json')
-lf.compileall(previews=False)
+if __name__=='__main__':
+	lf=LevelFile(sys.argv[1])
+	lf.compileall(previews=True)
