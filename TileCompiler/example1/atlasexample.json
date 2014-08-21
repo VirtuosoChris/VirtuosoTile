@@ -10,6 +10,11 @@
 	"f":"sub(<tiles/floor>,0,1)",
 	"w":"random(<tiles/water>)"
 	},
+"palette_aliases":
+	{
+	"#00FF00":"g",
+	"#0000FF":"w"
+	},
 "outputs":
 	[
 		{
@@ -22,6 +27,11 @@
 				"g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g",
 				"g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g g"
 			]
+		},
+		{
+		"name":"island1",
+		"invisible":"f",
+		"visible":"island1.in.png"
 		}
 	]
 }

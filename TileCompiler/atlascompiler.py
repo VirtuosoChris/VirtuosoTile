@@ -1,5 +1,5 @@
 import json
-from PIL import Image
+from PIL import Image,ImageColor
 import os
 import re
 import random
@@ -89,7 +89,7 @@ def tileset_lookup_potential(strarg,tilesources):
 
 def animate_code(rangecode,fps,startpoint=0):
 	n=rangecode[1]-rangecode[0]
-	animate_prefix=1<<31+fps<<20+n<<16 #whatever the appropriate schema is
+	animate_prefix=(1<<31)+(fps<<20)+(n<<16) #whatever the appropriate schema is
 	return animate_prefix+rangecode[0]+startpoint
 	
 def sub_code(rangecode,begin,end):
@@ -110,25 +110,50 @@ class LevelFile(object):
 	def __init__(self,fn):
 		self.dictionary=json.load(open(fn,'r'))
 		sources=self.dictionary['sources']
-		self.tilesize=self.dictionary['tilesize']
+		self.tilesize=int(self.dictionary['tilesize'])
 		self.tilesources=get_tilesources(sources[0],self.tilesize) #TODO: BUG..sources should be parsed
 		self.tilerefs={}
 		self.name=os.path.splitext(fn)[0]
 		
+		
 		for tilekey,tiles in self.tilesources.items():
 			tv=[(tilekey,x) for x in range(len(tiles))]
 			self.tilerefs[tilekey]=tv
+			
+		#TODO: verify aliases
 		self.aliases=self.dictionary['aliases']
+		#TODO: verify palette_aliases
+		self.palette_aliases=self.dictionary['palette_aliases']		#http://pillow.readthedocs.org/en/latest/reference/ImageColor.html 
+		self.npalette_aliases=dict([(ImageColor.getrgb(cstring),v) for cstring,v in self.palette_aliases.items()])
 		self.outputs=self.dictionary['outputs']
 		
 		for o in self.outputs:
 			if('invisible' in o):
 				o['invisible_aliased']=alias_string(self.aliases,o['invisible'])
 			if('visible' in o):
+				if(isinstance(o['visible'],str)):
+					o['visible']=self.source_map_to_aliastext(o['visible'])
 				va=[]
 				for v in o['visible']:
 					va.append(alias_string(self.aliases,v))
 				o['visible_aliased']=va
+	
+	def source_map_to_aliastext(self,fn):
+		sourcemap=Image.open(fn)
+		
+		def distfunc(color,pixel):
+			return sum(map(lambda x,y:(x-y)*(x-y),color,pixel))
+		outaliastext=[]
+		outrow=''
+		npak=self.npalette_aliases.keys()
+		for i,pv in enumerate(sourcemap.getdata()):
+			pdex=min(npak,key=lambda v:distfunc(pv,v))
+			outrow+=self.npalette_aliases[pdex]
+			outrow+=' '
+			if(i % sourcemap.size[0] == (sourcemap.size[0]-1)):
+				outaliastext.append(outrow.strip())
+				outrow=''
+		return outaliastext
 		
 	def get_all_potentials(self):
 		potentials=set()
@@ -167,35 +192,59 @@ class LevelFile(object):
 				vc.append([codeprocess(x) for x in a])
 			o['visible_codes']=vc
 			
-	def atlas_size(n):
-		for i in range(32):
-			if((1 << (2*i)) > n):
-				return (1 << i)
 				
 	def build_atlas(self,potentials):
+		def atlas_size(n):
+			for i in range(32):
+				if((1 << (2*i)) > n):
+					return (1 << i)
 		n=len(potentials)
 		d=atlas_size(n)
 		atlasim=Image.new("RGBA",(d*self.tilesize,d*self.tilesize))
+	
 		for i,p in enumerate(potentials):
+		
 			tile=self.tilesources[p[0]][p[1]]
-			xcoord=(i % d)*self.tilesize
-			ycoord=(i / d)*self.tilesize
+			xcoord=int((i % d))*self.tilesize
+			ycoord=int((i / d))*self.tilesize
+	
 			atlasim.paste(tile,box=(xcoord,ycoord))
 			
 		return atlasim
 		
-	def write_map(self,filename,mapints):
-		pass
-	def write_map_files(self):
-		#for each output, convert the image to a big-endian RGBA triple. then output item
-		#including invisible outputs to image pixels
+	def build_map(self,mapints):
+		height=len(mapints)
+		width=len(mapints[0])
 		
-		#for o in self.outputs:
-		pass
+		bb=bytes([ pcolor for row in mapints for column in row for pcolor in [(column >> 24) & 0xFF,(column >> 16) & 0xFF,(column >> 8) & 0xFF,column & 0xFF]])
+
+		return Image.frombytes('RGBA',(width,height),bb)
+		
+	def build_preview(self,mapints,potentials):
+		height=len(mapints)
+		width=len(mapints[0])
+		
+		previmg=Image.new('RGBA',(width*self.tilesize,height*self.tilesize))
+		for y,row in enumerate(mapints):
+			for x,base in enumerate(row):
+				p=potentials[base]
+				tile=self.tilesources[p[0]][p[1]]
+				coords=(x*self.tilesize,y*self.tilesize)
+				previmg.paste(tile,box=coords)
+		return previmg
+	
+	def compileall(self,imgtype='PNG',previews=False):
+		potentials=self.get_all_potentials()
+		self.compute_level_codes(potentials)
+		ext=imgtype.lower()
+		self.build_atlas(potentials).save(self.name+'.atlas.'+ext,imgtype)
+		for o in self.outputs:
+			oname=o['name']
+			self.build_map(o['visible_codes']).save(self.name+'.'+oname+'.visible.'+ext,imgtype)
+			self.build_map([o['invisible_codes']]).save(self.name+'.'+oname+'.invisible.'+ext,imgtype)
+			
+	
 		
 		
 lf=LevelFile('atlasexample.json')
-
-p=lf.get_all_potentials()
-lf.compute_level_codes(p)
-print()
+lf.compileall(previews=False)
