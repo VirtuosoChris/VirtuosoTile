@@ -50,17 +50,53 @@ void TileRenderer::draw(const TileMap& map, const TileSet& tiles)const
     auto dims = map.getDimensions();
     program.setUniform("mapSize", (float)dims.first, (float)dims.second );
     
-    //-----set fragment shader uniforms------
-    //uniform sampler2D mapData0;
-    //uniform sampler2D default_Tex;
     
-    //tileSizeNorm is size of tile in atlas, normalized
+    //-----set fragment shader uniforms------
+  
     auto tilesAxis = tiles.getTileCount();
     program.setUniform("tileSizeNorm", 1.0f / tilesAxis.first, 1.0f / tilesAxis.second);
     
     program.setUniform("clock", (float)clock);
     
+    GLint tex = 0;
+    
+    //go through each material, bind the atlas to an active texture, and set the uniform to the unit index
+    for(auto it = tiles.tilesForMaterial.begin(); it != tiles.tilesForMaterial.end(); it++)
+    {
+        if(it->second.size()>1)
+        {
+            throw std::runtime_error("Shader doesn't handle multiple atlases per material");
+        }
+        
+        const std::string& materialName = it->first + "_Tex";
+        
+        glActiveTexture(GL_TEXTURE0 + (tex++));
+        
+        glBindTexture(GL_TEXTURE_2D, tiles.getAtlas(materialName, 0).tex);
+        
+        program.setTexture(materialName.c_str(), tex);
+        
+    }
+    
+    //go through all the map layers, bind to a texture, set uniform to unit index
+    for(unsigned int i = 0; i < map.numLayers(); i++){
+        
+        std::stringstream sstr;
+        
+        sstr<<"mapData"<<i;
+        
+        glActiveTexture(GL_TEXTURE0 + (tex++));
+        
+        glBindTexture(GL_TEXTURE_2D, map.getIndirectionTexture(i));
+        
+        program.setTexture(sstr.str().c_str(), tex);
+        
+    }
+    
+    //-------draw------
     screenQuad();
+
+
     
 }
 
