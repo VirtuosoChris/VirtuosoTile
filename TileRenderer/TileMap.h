@@ -32,7 +32,7 @@ class TileMap{
     
         unsigned int numLayers()const;
     
-        std::pair<unsigned int, unsigned int> dimensions() const;
+        std::pair<unsigned int, unsigned int> getDimensions() const;
     
         //structs will get converted to GLubyte pointer before being passed in
         void updateTile(unsigned int x, unsigned int y, GLubyte* data)const;

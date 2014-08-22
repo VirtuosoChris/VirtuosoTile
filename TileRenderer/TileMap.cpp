@@ -88,7 +88,7 @@ bool TileMap::validateDimensions()const
 }
 
 
-std::pair<unsigned int, unsigned int> TileMap::dimensions() const
+std::pair<unsigned int, unsigned int> TileMap::getDimensions() const
 {
 
     if(indirectionTextures.size())

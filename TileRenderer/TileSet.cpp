@@ -1,6 +1,6 @@
 #include "TileSet.h"
 
-std::pair<unsigned int, unsigned int> TileSet::getTileDimensions()const
+std::pair<unsigned int, unsigned int> TileSet::getTileSize()const
 {
     
     return std::pair<unsigned int, unsigned int>(tileWidth, tileHeight);
@@ -92,6 +92,27 @@ void TileSet::setTileSize(unsigned int tileW, unsigned int tileH)
     tileWidth = tileW;
     tileHeight = tileH;
     
+}
+
+
+
+std::pair<unsigned int, unsigned int>  TileSet::getTileCount()const
+{
+    
+    unsigned int imageWidth=0;
+    unsigned int imageHeight=0;
+    
+    auto it = tilesForMaterial.begin();
+    if(it->second.size())
+    {
+        
+        imageWidth = it->second[0].width;
+        imageHeight = it->second[0].height;
+        
+       
+    }
+    
+    return std::pair<unsigned int, unsigned int> (imageWidth / tileWidth, imageHeight / tileHeight);
 }
 
 
