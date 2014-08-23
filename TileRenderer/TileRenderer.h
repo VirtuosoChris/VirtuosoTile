@@ -35,12 +35,13 @@ class TileRenderer
 
     ///\todo make engine internal typedefs that can be mapped to different libs
     ///or just store the matrices directly
+   
+public:
+    
+    
+    ///\todo public?
     Eigen::Matrix3f textureMatrix;
     Eigen::Matrix4f modelviewProjectionMatrix;
-    
-public:
-   
-    ///\todo public? 
     GL::GLShaderProgram program;
 
     void update(double timeDelta);
