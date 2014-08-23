@@ -6,7 +6,7 @@
 	],
 "aliases":
 	{
-	"g":"animate(<tiles/grass>,10)",
+	"g":"animate(<tiles/grass>,3)",
 	"f":"sub(<tiles/fire>,0,1)",
 	"w":"random(<tiles/water>)"
 	},

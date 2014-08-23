@@ -155,10 +155,12 @@ class LevelFile(object):
 			if('invisible' in o):
 				o['invisible_aliased']=alias_string(self.aliases,o['invisible'])
 			if('visible' in o):
-				if(isinstance(o['visible'],str)):
-					o['visible']=self.source_map_to_aliastext(o['visible'])
+				ov=o['visible']
+				if(isinstance(ov,str) or isinstance(ov,unicode)):
+					ov=self.source_map_to_aliastext(ov)
+
 				va=[]
-				for v in o['visible']:
+				for v in ov:
 					va.append(alias_string(self.aliases,v))
 				o['visible_aliased']=va
 	
@@ -238,9 +240,13 @@ class LevelFile(object):
 	def build_map(self,mapints):
 		height=len(mapints)
 		width=len(mapints[0])
-				
-		bb=bytes([ pchannel for row in mapints for pixel in row for pchannel in pixel.encode_to_pixel(int(self.atlas_size)) ])
+		mbout=[]
+		for row in mapints:
+			for pixel in row:
+				mbout.extend(pixel.encode_to_pixel(int(self.atlas_size)))
 
+		bb=''.join(map(chr,mbout))
+		print(mbout[0:3])
 		return Image.frombytes('RGBA',(width,height),bb)
 		
 	def build_preview(self,mapints,potentials):
