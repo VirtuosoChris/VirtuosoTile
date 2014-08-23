@@ -33,6 +33,11 @@ GameMap::GameMap(TileSet& tilesIn, TileMap& mapIn)
     bindLocs(renderer.program);
         
 }
+
+void GameMap::update()
+{
+      renderer.update( timer.getDelta() );
+}
     
 void GameMap::draw()const
 {

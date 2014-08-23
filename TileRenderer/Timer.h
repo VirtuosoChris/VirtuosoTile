@@ -15,7 +15,7 @@ public:
 
     void reset();
 
-    double getDelta();
+    double getDelta()const;
     
 };
 

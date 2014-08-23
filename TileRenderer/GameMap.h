@@ -14,6 +14,7 @@
 #include "TileMap.h"
 #include "TileRenderer.h"
 #include "TileSet.h"
+#include "Timer.h"
 
 struct GameMap
 {
@@ -23,9 +24,13 @@ struct GameMap
     
     TileRenderer renderer;
     
+    Timer timer;
+    
     GameMap(TileSet& tilesIn, TileMap& mapIn);
     
     void draw()const;
+    
+    void update();
     
 };
 

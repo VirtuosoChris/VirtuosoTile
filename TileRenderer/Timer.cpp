@@ -19,7 +19,7 @@ void Timer::reset()
 }
 
 
-double Timer::getDelta()
+double Timer::getDelta()const
 {
     
     std::chrono::high_resolution_clock::time_point currentTime =  std::chrono::high_resolution_clock::now();
