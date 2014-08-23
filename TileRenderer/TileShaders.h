@@ -82,7 +82,7 @@ std::string makeFragmentShaderHeader(const TileMap& map, const TileSet& tiles)
 
 bool validateMaterials(const TileSet& tiles)
 {
-//should validate that all the material names are valid for glsl
+//should validate that all the material names are valid for glsl variable names, and are unique
     
     return true;
     
@@ -163,6 +163,8 @@ std::string makeFragmentShader<DefaultTileLayout>(const TileMap& map, const Tile
     ///\todo usage should be a function call
     
     sstr<<"\ngl_FragColor= default_lookup;\n"<<std::endl;
+    
+    //sstr<<"\ngl_FragColor = texture2D(mapData0, tc);\n"<<std::endl;
     
     
     sstr<<"}";

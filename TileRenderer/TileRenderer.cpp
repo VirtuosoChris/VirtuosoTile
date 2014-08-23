@@ -37,8 +37,14 @@ void TileRenderer::draw(const TileMap& map, const TileSet& tiles)const
     
     //-----validate map and tile data structures prior to drawing-----
     
-    map.validateDimensions();
-    tiles.validate();
+    if(!map.validateDimensions())
+    {
+        throw std::runtime_error("Validating dimensions failed");
+    }
+    else if(!tiles.validate())
+    {
+        throw std::runtime_error("Validating tiles failed");
+    }
     
     program.bind();
     
@@ -70,11 +76,13 @@ void TileRenderer::draw(const TileMap& map, const TileSet& tiles)const
         
         const std::string& materialName = it->first + "_Tex";
         
-        glActiveTexture(GL_TEXTURE0 + (tex++));
+        glActiveTexture(GL_TEXTURE0 + (tex));
         
-        glBindTexture(GL_TEXTURE_2D, tiles.getAtlas(materialName, 0).tex);
+        glBindTexture(GL_TEXTURE_2D, tiles.getAtlas(it->first, 0).tex);
         
         program.setTexture(materialName.c_str(), tex);
+        
+        tex++;
         
     }
     
@@ -85,11 +93,15 @@ void TileRenderer::draw(const TileMap& map, const TileSet& tiles)const
         
         sstr<<"mapData"<<i;
         
-        glActiveTexture(GL_TEXTURE0 + (tex++));
+        glActiveTexture(GL_TEXTURE0 + (tex));
         
-        glBindTexture(GL_TEXTURE_2D, map.getIndirectionTexture(i));
+        GLint handle = map.getIndirectionTexture(i).tex;
+        
+        glBindTexture(GL_TEXTURE_2D, handle);
         
         program.setTexture(sstr.str().c_str(), tex);
+        
+        tex++;
         
     }
     

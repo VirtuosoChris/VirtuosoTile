@@ -31,8 +31,6 @@ class TileSet;
 class TileRenderer
 {
     
-    GL::GLShaderProgram program;
-    
     double clock;
 
     ///\todo make engine internal typedefs that can be mapped to different libs
@@ -41,15 +39,16 @@ class TileRenderer
     Eigen::Matrix4f modelviewProjectionMatrix;
     
 public:
-    
+   
+    ///\todo public? 
+    GL::GLShaderProgram program;
+
     void update(double timeDelta);
     
     void draw(const TileMap&, const TileSet&)const;
     
     TileRenderer();
     
-
-
 };
 
 #endif /* defined(____TileRenderer__) */
