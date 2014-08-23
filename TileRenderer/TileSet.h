@@ -6,6 +6,9 @@
 //
 //
 
+#ifndef TILESET_H_INCLUDED
+#define TILESET_H_INCLUDED
+
 #include <vector>
 #include <string>
 #include <map>
@@ -43,3 +46,4 @@ public:
     
 };
 
+#endif

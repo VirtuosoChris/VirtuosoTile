@@ -8,16 +8,17 @@
 
 #ifndef _TileLayouts_h
 #define _TileLayouts_h
+#include <cstdint>
 
 ///\todo issue a warning if using a configuration where there are inaccessible data
 ///this default struct can index an 8192x8192 atlas with 32x32 tiles
 struct DefaultTileLayout{
     
-    GLubyte offsetX;
-    GLubyte offsetY;
-    GLubyte maxAnimationFrame;
-    GLubyte repeat : 1;
-    GLubyte framerate :7;
+    std::uint8_t offsetX;
+    std::uint8_t  offsetY;
+    std::uint8_t  maxAnimationFrame;
+    std::uint8_t  repeat : 1;
+    std::uint8_t  framerate :7;
     
 };
 
