@@ -6,6 +6,9 @@
 //
 //
 
+
+#define EIGEN
+
 #include "TileRenderer.h"
 #include "TileMap.h"
 #include "TileSet.h"
@@ -26,9 +29,7 @@ static void screenQuad()
 
 void TileRenderer::update(double timeDelta)
 {
-    
     clock += timeDelta;
-
 }
 
 
